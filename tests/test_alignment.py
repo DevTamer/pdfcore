@@ -3,18 +3,18 @@ a shape drawn at known PDF coordinates must show up at the pixel position
 CoordinateMapper says it's at. Both apps rely on this (the redactor to
 remove what you drew over, the editor to edit what you clicked on)."""
 
-import fitz
+import pymupdf
 import pytest
 
 from pdfcore import CoordinateMapper, PDFRenderer
 
 # A solid black box at a known place on a white 500x600pt page.
-BOX = fitz.Rect(300, 400, 360, 440)
+BOX = pymupdf.Rect(300, 400, 360, 440)
 
 
 @pytest.fixture
 def boxed_page():
-    doc = fitz.open()
+    doc = pymupdf.open()
     page = doc.new_page(width=500, height=600)
     page.draw_rect(BOX, color=(0, 0, 0), fill=(0, 0, 0))
     yield page
@@ -62,4 +62,4 @@ def test_canvas_point_maps_back_into_the_box(boxed_page):
     px, py = mapper.canvas_to_pdf((cx0 + cx1) / 2, (cy0 + cy1) / 2)
 
     # ...and it should resolve to a PDF point inside the box.
-    assert fitz.Point(px, py) in BOX
+    assert pymupdf.Point(px, py) in BOX

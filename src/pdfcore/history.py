@@ -18,7 +18,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List
 
-import fitz  # PyMuPDF
+import pymupdf
 
 HISTORY_LIMIT = 20  # Max snapshots kept by default
 
@@ -30,9 +30,9 @@ class HistoryEntry:
     label: str
     doc_bytes: bytes
 
-    def open(self) -> fitz.Document:
-        """A new, independent fitz.Document holding this snapshot."""
-        return fitz.open(stream=self.doc_bytes, filetype="pdf")
+    def open(self) -> pymupdf.Document:
+        """A new, independent pymupdf.Document holding this snapshot."""
+        return pymupdf.open(stream=self.doc_bytes, filetype="pdf")
 
 
 class SnapshotHistory:
@@ -54,7 +54,7 @@ class SnapshotHistory:
 
     # -- Recording --------------------------------------------------------
 
-    def reset(self, doc: fitz.Document, label: str = "Original") -> None:
+    def reset(self, doc: pymupdf.Document, label: str = "Original") -> None:
         """Forget everything and start over with ``doc`` as the only entry."""
         self.clear()
         self.record(doc, label)
@@ -63,7 +63,7 @@ class SnapshotHistory:
         self._entries = []
         self._index = -1
 
-    def record(self, doc: fitz.Document, label: str) -> None:
+    def record(self, doc: pymupdf.Document, label: str) -> None:
         """Snapshot ``doc``'s current state as a new entry, discarding any
         redo branch beyond the current position."""
         del self._entries[self._index + 1:]

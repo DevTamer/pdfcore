@@ -1,6 +1,6 @@
 """Tests for DocumentSession: open/close lifecycle, paging, and history."""
 
-import fitz
+import pymupdf
 import pytest
 
 from pdfcore import DocumentSession
@@ -196,10 +196,10 @@ def test_undo_does_not_touch_snapshots_with_later_edits(session):
 
 
 def test_zero_page_document_is_closed_on_close():
-    """fitz.Document is falsy when it has no pages; make sure that doesn't
+    """pymupdf.Document is falsy when it has no pages; make sure that doesn't
     stop close_document from closing it."""
     s = DocumentSession()
-    empty = fitz.open()
+    empty = pymupdf.open()
     s.doc = empty
 
     s.close_document()

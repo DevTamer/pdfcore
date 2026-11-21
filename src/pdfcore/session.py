@@ -4,13 +4,13 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-import fitz  # PyMuPDF
+import pymupdf
 
 from .history import HISTORY_LIMIT, HistoryEntry, SnapshotHistory
 
 
 class DocumentSession:
-    """Owns the open ``fitz.Document``, the current page, and an in-memory
+    """Owns the open ``pymupdf.Document``, the current page, and an in-memory
     snapshot history (see ``pdfcore.history``).
 
     Apps subclass this to add their own document operations and state (and
@@ -24,7 +24,7 @@ class DocumentSession:
     """
 
     def __init__(self, history_limit: int = HISTORY_LIMIT):
-        self.doc: Optional[fitz.Document] = None
+        self.doc: Optional[pymupdf.Document] = None
         self.file_path: Optional[str] = None
         self.current_page: int = 0
         self.history = SnapshotHistory(limit=history_limit)
@@ -38,7 +38,7 @@ class DocumentSession:
         to it.
         """
         self.close_document()
-        doc = fitz.open(path)
+        doc = pymupdf.open(path)
         self.doc = doc
         self.file_path = path
         self.current_page = 0
@@ -56,7 +56,7 @@ class DocumentSession:
     def page_count(self) -> int:
         return len(self.doc) if self.doc is not None else 0
 
-    def get_page(self, page_num: int) -> fitz.Page:
+    def get_page(self, page_num: int) -> pymupdf.Page:
         return self.doc[page_num]
 
     # -- Undo / redo history ----------------------------------------------

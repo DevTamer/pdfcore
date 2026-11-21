@@ -5,7 +5,7 @@ itself cleanly when a Tk root can't be created (headless CI, Apple's
 system Python, ...).
 """
 
-import fitz
+import pymupdf
 import pytest
 
 from pdfcore import PDFRenderer
@@ -16,7 +16,7 @@ from pdfcore.pageview import (  # noqa: E402  (after the importorskip)
     MIN_FIT_WIDTH, PAGE_IMAGE_TAG, PageView,
 )
 
-BOX = fitz.Rect(300, 400, 360, 440)
+BOX = pymupdf.Rect(300, 400, 360, 440)
 
 
 @pytest.fixture
@@ -38,7 +38,7 @@ def view(root):
 
 @pytest.fixture
 def boxed_page():
-    doc = fitz.open()
+    doc = pymupdf.open()
     page = doc.new_page(width=500, height=600)
     page.draw_rect(BOX, color=(0, 0, 0), fill=(0, 0, 0))
     yield page

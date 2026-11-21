@@ -7,7 +7,7 @@ fly with the same PyMuPDF pdfcore itself uses).
 
 from pathlib import Path
 
-import fitz
+import pymupdf
 import pytest
 
 PAGE_WIDTH = 500
@@ -23,7 +23,7 @@ PAGE_TEXTS = [
 
 
 def _build_sample_pdf(path: Path) -> None:
-    doc = fitz.open()
+    doc = pymupdf.open()
     for text in PAGE_TEXTS:
         page = doc.new_page(width=PAGE_WIDTH, height=PAGE_HEIGHT)
         page.insert_text((50, 100), text, fontsize=14)
@@ -41,9 +41,9 @@ def sample_pdf_path(tmp_path) -> Path:
 
 @pytest.fixture
 def sample_doc():
-    """An open fitz.Document with the same content, for tests that don't
+    """An open pymupdf.Document with the same content, for tests that don't
     need a real file on disk."""
-    doc = fitz.open()
+    doc = pymupdf.open()
     for text in PAGE_TEXTS:
         page = doc.new_page(width=PAGE_WIDTH, height=PAGE_HEIGHT)
         page.insert_text((50, 100), text, fontsize=14)

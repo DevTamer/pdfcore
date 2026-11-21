@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import OrderedDict
 from typing import Optional
 
-import fitz  # PyMuPDF
+import pymupdf
 from PIL import Image
 
 from .coords import RENDER_DPI
@@ -27,7 +27,7 @@ class PDFRenderer:
         self.cache_limit = cache_limit
         self._cache: "OrderedDict[int, Image.Image]" = OrderedDict()
 
-    def render_page(self, page: fitz.Page, page_num: int) -> Image.Image:
+    def render_page(self, page: pymupdf.Page, page_num: int) -> Image.Image:
         """Render a page at RENDER_DPI. Returns a PIL Image."""
         if page_num in self._cache:
             self._cache.move_to_end(page_num)

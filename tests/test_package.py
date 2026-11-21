@@ -50,3 +50,15 @@ def test_installed_metadata_matches_version():
     except metadata.PackageNotFoundError:
         pytest.skip("pdfcore isn't pip-installed in this environment")
     assert installed == pdfcore.__version__
+
+
+@pytest.mark.parametrize("module", ["pdfcore", "pdfcore.pageview"])
+def test_uses_pymupdf_not_the_deprecated_fitz_alias(module):
+    """PyMuPDF's `fitz` import name is deprecated (and warns on newer
+    versions); pdfcore must only import `pymupdf`."""
+    result = _run_python(
+        f"import sys, {module}; "
+        "print('pymupdf' in sys.modules, 'fitz' in sys.modules)"
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "True False"

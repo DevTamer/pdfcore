@@ -10,7 +10,7 @@ from __future__ import annotations
 import tkinter as tk
 from typing import Optional, Tuple
 
-import fitz  # PyMuPDF
+import pymupdf
 from PIL import Image, ImageTk
 
 from .coords import CoordinateMapper
@@ -62,7 +62,7 @@ class PageView:
 
     # -- Display ----------------------------------------------------------
 
-    def show_page(self, page: fitz.Page, page_num: int,
+    def show_page(self, page: pymupdf.Page, page_num: int,
                   fit_width: Optional[int] = None) -> Tuple[int, int]:
         """Render ``page`` (cached under ``page_num``), scale it to
         ``fit_width`` pixels wide (default: the canvas's current width less

@@ -1,13 +1,13 @@
 """Tests for SnapshotHistory: the in-memory undo/redo stack of snapshots."""
 
-import fitz
+import pymupdf
 import pytest
 
 from pdfcore import HISTORY_LIMIT, HistoryEntry, SnapshotHistory
 
 
-def _doc_with_text(text: str) -> fitz.Document:
-    doc = fitz.open()
+def _doc_with_text(text: str) -> pymupdf.Document:
+    doc = pymupdf.open()
     page = doc.new_page()
     page.insert_text((50, 100), text)
     return doc
