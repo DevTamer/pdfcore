@@ -22,7 +22,7 @@ from .history import HISTORY_LIMIT, HistoryEntry, SnapshotHistory
 from .renderer import CACHE_LIMIT, PDFRenderer
 from .session import DocumentSession, PasswordProtectedError
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 __all__ = [
     "CACHE_LIMIT",

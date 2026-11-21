@@ -42,24 +42,27 @@ class DocumentSession:
         to it.
 
         If opening fails, the exception propagates and the session is left
-        with no document open (any previous document is closed first), never
-        half-open. Password-protected PDFs raise PasswordProtectedError.
+        exactly as it was: the current document (if any) stays open with its
+        history. Password-protected PDFs raise PasswordProtectedError.
         """
-        self.close_document()
         doc = pymupdf.open(path)
+        history = SnapshotHistory(limit=self.history.limit)
         try:
             if doc.needs_pass:
                 raise PasswordProtectedError(
                     "This PDF is password-protected. Password-protected "
                     "PDFs aren't supported yet.")
-            self.history.reset(doc, "Original")
+            history.reset(doc, "Original")
         except Exception:
             doc.close()
-            self.history.clear()
             raise
+        # Only now that the new document is known to be usable is the old
+        # one closed (subclasses reset their own state in close_document).
+        self.close_document()
         self.doc = doc
         self.file_path = path
         self.current_page = 0
+        self.history = history
 
     def close_document(self) -> None:
         if self.doc is not None:

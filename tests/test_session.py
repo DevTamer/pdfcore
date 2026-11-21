@@ -234,14 +234,57 @@ def test_password_protected_pdf_is_refused_cleanly(tmp_path):
     _assert_empty(s)
 
 
-def test_failed_open_closes_the_previous_document(session, tmp_path):
-    previous = session.doc
+def test_failed_open_keeps_the_current_document(session, sample_pdf_path, tmp_path):
+    _stamp(session, 0, "unsaved work")
+    session.record_snapshot("Work")
+    session.current_page = 2
+    doc = session.doc
     path = tmp_path / "locked.pdf"
     _encrypted_pdf(path)
+
     with pytest.raises(PasswordProtectedError):
         session.open_document(str(path))
+
+    assert session.doc is doc and not doc.is_closed
+    assert session.file_path == str(sample_pdf_path)
+    assert session.current_page == 2
+    assert session.history_entries() == ["Original", "Work"]
+    assert "unsaved work" in session.get_page(0).get_text()
+
+
+def test_subclass_state_survives_a_failed_open(session, tmp_path):
+    class Tracking(DocumentSession):
+        def __init__(self):
+            super().__init__()
+            self.closed = 0
+
+        def close_document(self):
+            super().close_document()
+            self.closed += 1
+
+    t = Tracking()
+    t.open_document(session.file_path)
+    t.closed = 0
+    junk = tmp_path / "junk.pdf"
+    junk.write_bytes(b"not a pdf")
+    with pytest.raises(Exception):
+        t.open_document(str(junk))
+    assert t.closed == 0  # close_document (and subclass resets) not run
+    t.close_document()
+
+
+def test_successful_open_closes_the_previous_document(session, sample_pdf_path):
+    previous = session.doc
+    session.open_document(str(sample_pdf_path))
     assert previous.is_closed
-    _assert_empty(session)
+    assert session.history_entries() == ["Original"]
+
+
+def test_history_limit_survives_reopening(sample_pdf_path):
+    s = DocumentSession(history_limit=3)
+    s.open_document(str(sample_pdf_path))
+    s.open_document(str(sample_pdf_path))
+    assert s.history.limit == 3
 
 
 def test_unreadable_file_is_refused_cleanly(tmp_path):
