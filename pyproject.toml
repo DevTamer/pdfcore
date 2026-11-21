@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pdfcore"
+dynamic = ["version"]
+description = "Shared PDF rendering, coordinate mapping, session history and Tk page view for the PDF Redactor and PDF Editor macOS apps."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "Tamer" }]
+dependencies = [
+    "PyMuPDF>=1.24.14",
+    "Pillow>=11.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.urls]
+Homepage = "https://github.com/DevTamer/pdfcore"
+
+[tool.setuptools.dynamic]
+version = { attr = "pdfcore.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

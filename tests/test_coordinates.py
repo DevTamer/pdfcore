@@ -6,7 +6,7 @@ environments where a real tkinter.Canvas can't be created).
 
 import pytest
 
-from redactor import CoordinateMapper, RENDER_DPI
+from pdfcore import CoordinateMapper, RENDER_DPI
 
 
 def test_pdf_to_canvas_scales_by_total_scale():

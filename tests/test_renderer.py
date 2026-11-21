@@ -1,6 +1,8 @@
 """Tests for PDFRenderer: rendering and its LRU page-image cache."""
 
-from redactor import PDFRenderer, RENDER_DPI, CACHE_LIMIT
+import pytest
+
+from pdfcore import PDFRenderer, RENDER_DPI, CACHE_LIMIT
 from conftest import PAGE_WIDTH, PAGE_HEIGHT
 
 
@@ -83,3 +85,28 @@ def test_invalidate_all_pages(sample_doc):
     renderer.invalidate()
 
     assert len(renderer._cache) == 0
+
+
+def test_custom_cache_limit_is_respected(sample_doc):
+    renderer = PDFRenderer(cache_limit=2)
+    page = sample_doc[0]
+
+    for page_num in range(4):
+        renderer.render_page(page, page_num)
+
+    assert list(renderer._cache) == [2, 3]
+
+
+@pytest.mark.parametrize("bad_limit", [0, -1])
+def test_cache_limit_must_be_positive(bad_limit):
+    with pytest.raises(ValueError):
+        PDFRenderer(cache_limit=bad_limit)
+
+
+def test_different_pages_render_different_images(sample_doc):
+    renderer = PDFRenderer()
+
+    first = renderer.render_page(sample_doc[0], 0)
+    second = renderer.render_page(sample_doc[1], 1)
+
+    assert first.tobytes() != second.tobytes()

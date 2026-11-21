@@ -1,24 +1,20 @@
-"""Shared pytest fixtures for the redactor test suite.
+"""Shared pytest fixtures for the pdfcore test suite.
 
 No binary PDF fixtures are committed to the repo (the project's .gitignore
 excludes *.pdf, and it's cleaner to generate small, known-content PDFs on the
-fly with the same PyMuPDF the app itself uses).
+fly with the same PyMuPDF pdfcore itself uses).
 """
 
-import sys
 from pathlib import Path
 
 import fitz
 import pytest
 
-# Make redactor.py importable as `redactor` without installing the package.
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
 PAGE_WIDTH = 500
 PAGE_HEIGHT = 600
 
-# Known text placed on each page, at known positions, so tests can search for
-# it and assert on exactly what apply_redactions removes.
+# Known text placed on each page, at known positions, so tests can tell
+# pages and history snapshots apart by their content.
 PAGE_TEXTS = [
     "CONFIDENTIAL: John Doe, SSN 123-45-6789",
     "Second page — CONFIDENTIAL project codename Falcon",

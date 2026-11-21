@@ -8,8 +8,3 @@ __pycache__/
 build/
 dist/
 *.egg-info/
-
-.build-venv/
-packaging/build/
-packaging/dist/
-packaging/*.dmg
