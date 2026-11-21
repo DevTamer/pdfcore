@@ -3,7 +3,7 @@
 import pymupdf
 import pytest
 
-from pdfcore import DocumentSession
+from pdfcore import DocumentSession, PasswordProtectedError
 from conftest import PAGE_TEXTS
 
 
@@ -205,3 +205,53 @@ def test_zero_page_document_is_closed_on_close():
     s.close_document()
 
     assert empty.is_closed
+
+
+# -- Failed opens ----------------------------------------------------------------
+
+def _encrypted_pdf(path):
+    doc = pymupdf.open()
+    doc.new_page().insert_text((50, 100), "secret")
+    doc.save(str(path), encryption=pymupdf.PDF_ENCRYPT_AES_256,
+             user_pw="pw", owner_pw="pw")
+    doc.close()
+
+
+def _assert_empty(s):
+    assert s.doc is None
+    assert s.file_path is None
+    assert s.page_count == 0
+    assert s.history_entries() == []
+    assert s.history_index == -1
+
+
+def test_password_protected_pdf_is_refused_cleanly(tmp_path):
+    path = tmp_path / "locked.pdf"
+    _encrypted_pdf(path)
+    s = DocumentSession()
+    with pytest.raises(PasswordProtectedError, match="password-protected"):
+        s.open_document(str(path))
+    _assert_empty(s)
+
+
+def test_failed_open_closes_the_previous_document(session, tmp_path):
+    previous = session.doc
+    path = tmp_path / "locked.pdf"
+    _encrypted_pdf(path)
+    with pytest.raises(PasswordProtectedError):
+        session.open_document(str(path))
+    assert previous.is_closed
+    _assert_empty(session)
+
+
+def test_unreadable_file_is_refused_cleanly(tmp_path):
+    path = tmp_path / "junk.pdf"
+    path.write_bytes(b"not a pdf at all")
+    s = DocumentSession()
+    with pytest.raises(Exception):
+        s.open_document(str(path))
+    _assert_empty(s)
+
+
+def test_password_error_is_a_value_error():
+    assert issubclass(PasswordProtectedError, ValueError)

@@ -20,9 +20,9 @@ and must be imported explicitly.
 from .coords import RENDER_DPI, CoordinateMapper
 from .history import HISTORY_LIMIT, HistoryEntry, SnapshotHistory
 from .renderer import CACHE_LIMIT, PDFRenderer
-from .session import DocumentSession
+from .session import DocumentSession, PasswordProtectedError
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 __all__ = [
     "CACHE_LIMIT",
@@ -31,6 +31,7 @@ __all__ = [
     "HISTORY_LIMIT",
     "HistoryEntry",
     "PDFRenderer",
+    "PasswordProtectedError",
     "RENDER_DPI",
     "SnapshotHistory",
     "__version__",

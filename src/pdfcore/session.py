@@ -9,6 +9,10 @@ import pymupdf
 from .history import HISTORY_LIMIT, HistoryEntry, SnapshotHistory
 
 
+class PasswordProtectedError(ValueError):
+    """The PDF needs a password to open."""
+
+
 class DocumentSession:
     """Owns the open ``pymupdf.Document``, the current page, and an in-memory
     snapshot history (see ``pdfcore.history``).
@@ -36,13 +40,26 @@ class DocumentSession:
 
         The file on disk is only read here; nothing in this class writes
         to it.
+
+        If opening fails, the exception propagates and the session is left
+        with no document open (any previous document is closed first), never
+        half-open. Password-protected PDFs raise PasswordProtectedError.
         """
         self.close_document()
         doc = pymupdf.open(path)
+        try:
+            if doc.needs_pass:
+                raise PasswordProtectedError(
+                    "This PDF is password-protected. Password-protected "
+                    "PDFs aren't supported yet.")
+            self.history.reset(doc, "Original")
+        except Exception:
+            doc.close()
+            self.history.clear()
+            raise
         self.doc = doc
         self.file_path = path
         self.current_page = 0
-        self.history.reset(doc, "Original")
 
     def close_document(self) -> None:
         if self.doc is not None:
